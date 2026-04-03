@@ -1,4 +1,4 @@
-const data = require("../data");
+const data = require("../../data");
 const { organizations } = data;
 
 const verifyOrg = (req, res, next) => {

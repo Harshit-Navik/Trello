@@ -1,4 +1,4 @@
-const data = require("../data");
+const data = require("../../data");
 const { users, organizations, issues, boards } = data;
 const signUpHandler = (req, res) => {
     const username = req.body.username;
