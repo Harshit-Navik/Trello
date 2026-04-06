@@ -1,7 +1,6 @@
 // this is the entry point of our server , server will starts from here 
-import express from "express";
 import  connectDB  from "./db/index.js";
-const app = express();
+import app from "./app.js";
 
 connectDB()
 .then(() => {
