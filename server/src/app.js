@@ -17,7 +17,10 @@ app.use(express.urlencoded());   // it is a middleware converts (parses) that ra
 
 app.use(express.static("public")); // to Make a folder publicly accessible over HTTP 
 
-app.use(cookieParser());  // basically to perform CRUD operations over clients cookie from clients browser , means to access or set cookies 
+app.use(cookieParser());  // basically to perform CRUD operations over clients cookie from clients browser , means to access or set cookies     
+
+// route imports 
+
 
 
 
