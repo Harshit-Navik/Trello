@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
         minlength: [6, "password must have atleast 6 letters"],
         maxlength: 12,
     }
-
+ 
 } , { timestamps : true })
 
 
