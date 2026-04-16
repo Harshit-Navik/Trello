@@ -1,7 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { use } from "react";
 
 
 const userSchema = new Schema({
@@ -26,19 +25,6 @@ const userSchema = new Schema({
         trim: true,
         index: true    // used to enable searching , optimized way 
     },
-    // avatar: {
-    //     type: String, // cloudinary url 
-    //     required: true,
-    // },
-    // coverImage: {
-    //     type: String
-    // },
-    watchHistory: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: "Video"
-        }
-    ],
     password: {
         type: String, // string because its going to be encrypted 
         required: [true, "Password is required"],
