@@ -4,14 +4,14 @@ import User from "../../models/user.model.js"
 import { ApiResponse } from "../../utils/ApiResponse.js";
 
 
-const generateRefreshAndAccessToken = async (userId) {
+const generateRefreshAndAccessToken = async (userId) => {
     try {
         const user = await User.findById(userId)
 
         const refreshToken = user.generateRefreshToken()
         const accessToken = user.generateAccessToken()
 
-        user.refreshToken = refreshToken;
+        user.refreshToken = refreshToken;   
         await user.save({ validateBeforeSave: false }) //  as we are updatind a single field , so we dont needs full validation here , thats why we skip validation 
 
         return { accessToken, refreshToken }
@@ -54,7 +54,8 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, "User with this email or username already exists")
     }
 
-    // here we creates the user object to store in db ...
+    // doing this will create an user object and save to mongo , and return a full mongoose document that include "_id" that we have used in next step
+
 
     const user = await User.create({
         fullname,
@@ -147,6 +148,42 @@ const loginUser = asyncHandler(async (req, res) => {
         )
 })
 
+// answer them when revisit 
+
+/* 
+1. how removing refresh token helps to log out user 
+2. why to define options here
+3. what is this clearcookie in response
+*/
+
+// ye part thoda km smj aaya , will revisit later
 
 
-export { registerUser, loginUser }
+const logOutUser = asyncHandler( async (req, res) => {
+    await User.findByIdAndUpdate(  
+        req.user._id,
+        {
+            $set: {
+                refreshToken: undefined  // to set the refresh token undefined 
+            }
+        },
+        {
+            new: true 
+        }
+    )
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res
+    .status(200)
+    .clearCookie("accessToken" , options)
+    .clearCookie("refreshToken" , options)
+    . json(
+        new ApiResponse(200, {} , "User logged out")
+    )
+})
+
+export { registerUser, loginUser , logOutUser }
