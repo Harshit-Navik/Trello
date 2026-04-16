@@ -1,5 +1,5 @@
-import { ApiError } from "../../utils/ApiError";
-import { asyncHandler } from "../../utils/asyncHandler";
+import { ApiError } from "../../utils/ApiError.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
 import User from "../../models/user.model.js"
 import { ApiResponse } from "../../utils/ApiResponse.js";
 
@@ -95,7 +95,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (!email ||  !password) {
         throw new ApiError(400, "email and password is required")
     }
 
