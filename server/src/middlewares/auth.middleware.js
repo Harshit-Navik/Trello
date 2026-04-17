@@ -1,10 +1,10 @@
-import { User } from "../models/user.model.js";
+import  User  from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken"
 
 
-export default verifyJwt = asyncHandler(async (req, res, next) => {
+const authMiddleware = asyncHandler(async (req, res, next) => {
 
     // here this "?" operator is used to safely access properties without causing errors if something is null or undefined.
 
@@ -29,3 +29,5 @@ export default verifyJwt = asyncHandler(async (req, res, next) => {
         throw new ApiError(401, error?.message || "Invaild access token")
     }
 })
+
+export default authMiddleware;

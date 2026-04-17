@@ -1,7 +1,7 @@
-import { ApiError } from "../../utils/ApiError.js";
-import { asyncHandler } from "../../utils/asyncHandler.js";
-import User from "../../models/user.model.js"
-import { ApiResponse } from "../../utils/ApiResponse.js";
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import  User  from "../models/user.model.js"
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 
 const generateRefreshAndAccessToken = async (userId) => {
@@ -36,10 +36,10 @@ const registerUser = asyncHandler(async (req, res) => {
     */
 
 
-    const { fullname, username, email, password } = req.body;
+    const { fullName, username, email, password } = req.body;
 
     if (
-        [fullname, username, email, password].some(field => field?.trim() === "") // if any single element is empty then it will throw an error
+        [fullName, username, email, password].some(field => field?.trim() === "") // if any single element is empty then it will throw an error
     ) {
         throw new ApiError(400, "All fields are required");
     }
@@ -58,7 +58,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
     const user = await User.create({
-        fullname,
+        fullName,
         username: username.toLowerCase(),
         password,
         email
@@ -81,7 +81,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
 })
 
-const loginUser = asyncHandler(async (req, res) => {
+const logInUser = asyncHandler(async (req, res) => {
 
     // ------------ steps to follow to login a user --------------------
     /* 
@@ -110,13 +110,13 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // find user in database 
 
-    const user = User.findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
         throw new ApiError(404, "User does not exists")
     }
 
-    const isPasswordValid = user.isPasswordCorrect(password);
+    const isPasswordValid = await user.isPasswordCorrect(password);
 
     if (!isPasswordValid) {
         throw new ApiError(401, "Invaild user credentials")
@@ -124,7 +124,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const { accessToken, refreshToken } = await generateRefreshAndAccessToken(user._id);
 
-    const loggedInUser = User.findById(user._id).select("-password -refreshToken");
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
     const options = {
         httpOnly: true,
@@ -181,9 +181,9 @@ const logOutUser = asyncHandler( async (req, res) => {
     .status(200)
     .clearCookie("accessToken" , options)
     .clearCookie("refreshToken" , options)
-    . json(
+    .json(
         new ApiResponse(200, {} , "User logged out")
     )
 })
 
-export { registerUser, loginUser , logOutUser }
+export { registerUser, logInUser , logOutUser }
