@@ -2,7 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import  User  from "../models/user.model.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
-
+import jwt from "jsonwebtoken";
 
 const generateRefreshAndAccessToken = async (userId) => {
     try {
@@ -185,5 +185,23 @@ const logOutUser = asyncHandler( async (req, res) => {
         new ApiResponse(200, {} , "User logged out")
     )
 })
+
+
+const refreshAccessToken = async (req , res) => {
+    const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken ;
+
+    if(!incomingRefreshToken) {
+        throw new ApiError(401, "Unauthorized request")
+    }
+
+    const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+    const user = User.findById(decodedToken?._id)
+
+    if(!user) {
+        throw new ApiError(401, "Invalid Refresh Token")
+    }
+
+}
 
 export { registerUser, logInUser , logOutUser }
