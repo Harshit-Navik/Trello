@@ -1,6 +1,6 @@
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import  User  from "../models/user.model.js"
+import User from "../models/user.model.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
@@ -11,7 +11,7 @@ const generateRefreshAndAccessToken = async (userId) => {
         const refreshToken = user.generateRefreshToken()
         const accessToken = user.generateAccessToken()
 
-        user.refreshToken = refreshToken;   
+        user.refreshToken = refreshToken;
         await user.save({ validateBeforeSave: false }) //  as we are updatind a single field , so we dont needs full validation here , thats why we skip validation 
 
         return { accessToken, refreshToken }
@@ -95,7 +95,7 @@ const logInUser = asyncHandler(async (req, res) => {
 
     const { email, password } = req.body;
 
-    if (!email ||  !password) {
+    if (!email || !password) {
         throw new ApiError(400, "email and password is required")
     }
 
@@ -159,8 +159,8 @@ const logInUser = asyncHandler(async (req, res) => {
 // ye part thoda km smj aaya , will revisit later
 
 
-const logOutUser = asyncHandler( async (req, res) => {
-    await User.findByIdAndUpdate(  
+const logOutUser = asyncHandler(async (req, res) => {
+    await User.findByIdAndUpdate(
         req.user._id,
         {
             $set: {
@@ -168,7 +168,7 @@ const logOutUser = asyncHandler( async (req, res) => {
             }
         },
         {
-            new: true 
+            new: true
         }
     )
 
@@ -178,30 +178,56 @@ const logOutUser = asyncHandler( async (req, res) => {
     }
 
     return res
-    .status(200)
-    .clearCookie("accessToken" , options)
-    .clearCookie("refreshToken" , options)
-    .json(
-        new ApiResponse(200, {} , "User logged out")
-    )
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(
+            new ApiResponse(200, {}, "User logged out")
+        )
 })
 
 
-const refreshAccessToken = async (req , res) => {
-    const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken ;
+const refreshAccessToken = async (req, res) => {
+    const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken;
 
-    if(!incomingRefreshToken) {
+    if (!incomingRefreshToken) {
         throw new ApiError(401, "Unauthorized request")
     }
 
-    const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+    try {
+        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
 
-    const user = User.findById(decodedToken?._id)
+        const user = User.findById(decodedToken?._id)
 
-    if(!user) {
-        throw new ApiError(401, "Invalid Refresh Token")
+        if (!user) {
+            throw new ApiError(401, "Invalid Refresh Token")
+        }
+
+        if (decodedToken !== user?.refreshToken) {
+            throw new ApiError(401, "Refresh token is expired or used")
+        }
+
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+
+        const { accessToken, newRefreshToken } = await generateRefreshAndAccessToken(user._id);
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken)
+            .cookie("refreshToken", newRefreshToken)
+            .json(
+                new ApiResponse(
+                    200,
+                    { accessToken, newRefreshToken },
+                    "Access Token Refreshed"
+                )
+            )
+    } catch (error) {
+        throw new ApiError(401, error?.message || "Invaild Refresh Token")
     }
-
 }
 
-export { registerUser, logInUser , logOutUser }
+export { registerUser, logInUser, logOutUser , refreshAccessToken }
