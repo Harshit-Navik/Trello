@@ -217,6 +217,9 @@ const refreshAccessToken = async (req, res) => {
 
         const { accessToken, newRefreshToken } = await generateRefreshAndAccessToken(user._id);
 
+        user.refreshToken = newRefreshToken;
+        await user.save({ validateBeforeSave: false });
+
         return res
             .status(200)
             .cookie("accessToken", accessToken)
@@ -233,4 +236,4 @@ const refreshAccessToken = async (req, res) => {
     }
 }
 
-export { registerUser, logInUser, logOutUser , refreshAccessToken }
+export { registerUser, logInUser, logOutUser, refreshAccessToken }
