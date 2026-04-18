@@ -158,6 +158,8 @@ const logInUser = asyncHandler(async (req, res) => {
 
 // ye part thoda km smj aaya , will revisit later
 
+// to logout a user , we just have to remove their access and refresh token , that what we did in logoutuser controller 
+
 
 const logOutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
@@ -168,7 +170,7 @@ const logOutUser = asyncHandler(async (req, res) => {
             }
         },
         {
-            new: true
+            new: true  // to return the new updated response 
         }
     )
 
@@ -209,7 +211,8 @@ const refreshAccessToken = async (req, res) => {
 
         const options = {
             httpOnly: true,
-            secure: true
+            secure: true,
+            sameSite: "Strict"
         }
 
         const { accessToken, newRefreshToken } = await generateRefreshAndAccessToken(user._id);
@@ -221,7 +224,7 @@ const refreshAccessToken = async (req, res) => {
             .json(
                 new ApiResponse(
                     200,
-                    { accessToken, newRefreshToken },
+                    {},  // removed access and refresh token from response as we have already saved them on cookie 
                     "Access Token Refreshed"
                 )
             )
