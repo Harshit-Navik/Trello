@@ -2,7 +2,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
+import { errorHandler } from "./middlewares/errorHandler.js";
 const app = express();
 
 // -------------------------------- middlewares ------------------------------------------------
@@ -17,7 +17,6 @@ app.use(express.urlencoded());   // it is a middleware converts (parses) that ra
 app.use(express.static("public")); // to Make a folder publicly accessible over HTTP 
 app.use(cookieParser());  // basically to perform CRUD operations over clients cookie from clients browser , means to access or set cookies     
 
-
 // ----------------------------- route imports --------------------------------------------------- 
 
 import userRouter from "./routes/user.route.js"
@@ -26,5 +25,9 @@ import userRouter from "./routes/user.route.js"
 // ---------------------------- routes declaration ----------------------------------------------- 
 
 app.use("/api/v1/users", userRouter)
+
+// ----------------------------- error handler (MUST be last) ----------------------------------------------- 
+
+app.use(errorHandler) // remember errorHandler always have to at the bottom 
 
 export default app; 
