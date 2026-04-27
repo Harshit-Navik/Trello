@@ -22,7 +22,6 @@ const generateRefreshAndAccessToken = async (userId) => {
     }
 }
 
-
 const registerUser = asyncHandler(async (req, res) => {
 
     // ----- steps to perform to register a user -----

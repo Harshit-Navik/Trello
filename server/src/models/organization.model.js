@@ -8,7 +8,7 @@ const organizationSchema = new mongoose.Schema({
         unique: true
     },
 
-    userId: {
+    createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true

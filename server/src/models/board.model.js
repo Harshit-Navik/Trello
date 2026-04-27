@@ -10,9 +10,14 @@ const boardSchema = new mongoose.Schema({
 
     description: {
         type: String,
-        trim: true
+        trim: true,
     },
 
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
     organizationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Organization",
