@@ -19,7 +19,7 @@ app.use(cookieParser());  // basically to perform CRUD operations over clients c
 
 // ----------------------------- route imports --------------------------------------------------- 
 
-import userRouter from "./routes/user.route.js"
+import userRouter from "./routes/users.route.js"
 
 
 // ---------------------------- routes declaration ----------------------------------------------- 
