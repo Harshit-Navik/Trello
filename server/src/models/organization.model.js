@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { email } from "zod";
 
 const organizationSchema = new mongoose.Schema({
 
