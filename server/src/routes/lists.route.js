@@ -1,14 +1,16 @@
 import { Router } from "express";
-
-const router = Router();
-
-router
-    .route("/lists/:id")
-    .get()
-    .patch()
+import cardRouter from "./cards.route.js"
+const router = Router({ mergeParams: true });
 
 router
-    .route("/boards/:id/lists")
-    .get()
+    .route("/:listId")
+    .get() // to get specific list 
+    .patch() // update list 
 
-export { router }
+router
+    .route("/")
+    .get() // to get all list of board 
+
+router.use("/:listId/cards", cardRouter);
+
+export default router;

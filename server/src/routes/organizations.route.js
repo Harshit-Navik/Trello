@@ -1,26 +1,27 @@
 import { Router } from "express";
-
+import boardRouter from "./boards.route.js"
 
 const router = Router();
 
 router
-    .route("/organizations")
-    .get()
-    .post()
+    .route("/")
+    .get() // get all org 
+    .post() // create an org 
 
 router
-    .route("/organizations/:id")
-    .get()
-    .patch()
-    .delete()
+    .route("/:orgId")
+    .get() // get specific org 
+    .patch() // update org
+    .delete() // delete org 
 
 router
-    .route("/organizations/:id/members")
-    .post()
+    .route("/:orgId/members")
+    .post() // add member
 
 router
-    .route("/organizations/:id/members/:membersId")
-    .delete()
+    .route("/:orgId/members/:membersId")
+    .delete() // remove member 
 
+router.use("/:orgId/boards" , boardRouter)
 
-export { router }
+export default router;

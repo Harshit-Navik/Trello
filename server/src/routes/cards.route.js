@@ -1,21 +1,21 @@
 import { Router } from "express";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router
-    .route("/boards/:id/cards")
-    .get()
-    .post()
+    .route("/")
+    .get() // get all cards
+    .post() // create cards 
 
 
 router
-    .route("/cards/:id")
-    .get()
-    .patch()
-    .delete()
+    .route("/:cardId")
+    .get() // to get particular card
+    .patch() // to update a card 
+    .delete() // to delete a card 
 
 router
-    .route("/cards/:id/move")
-    .patch()
+    .route("/:cardId/move")
+    .patch() // move card to another list 
 
-export { router }
+export default router;

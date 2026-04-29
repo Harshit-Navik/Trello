@@ -1,16 +1,21 @@
 import { Router } from "express";
+import cardRouter from "./cards.route.js";
+import listRouter from "./lists.route.js";
 
-const router = Router();
-
-router
-    .route("/organizations/:id/boards")
-    .get()
-    .post()
+const router = Router({ mergeParams: true });
 
 router
-    .route("/boards/:id")
-    .get()
-    .patch()
-    .delete()
+    .route("/")
+    .get() // to get all boards 
+    .post() // to create board 
 
-export { router }
+router
+    .route("/:boardId")
+    .get() // get specific board 
+    .patch() // update board 
+    .delete() // delete board 
+
+router.use("/:boardId/lists", listRouter);
+
+
+export default router;
