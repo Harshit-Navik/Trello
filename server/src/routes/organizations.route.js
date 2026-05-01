@@ -1,7 +1,7 @@
 import { Router } from "express";
 // import boardRouter from "./boards.route.js"
 // import { createOrg } from "../schema/org.schema.js";
-import { addMember, createOrganization, getAllOrganization, getParticularOrganization } from "../controllers/organization.controller.js";
+import { addMember, createOrganization, getAllOrganization, getParticularOrganization , updateTitle } from "../controllers/organization.controller.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = Router();
@@ -13,7 +13,7 @@ router
 router
     .route("/:orgId")
     .get(authMiddleware, getParticularOrganization) // get specific org 
-//     .patch() // update org   
+    .patch(authMiddleware, updateTitle) // update org   
 //     .delete() // delete org 
 
 router

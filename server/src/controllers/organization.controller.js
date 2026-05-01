@@ -1,9 +1,11 @@
 import { Organization } from "../models/organization.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { createOrg, memberInput } from "../schema/org.schema.js";
+import { createOrg, memberInput, title } from "../schema/org.schema.js";
 import { ApiError } from "../utils/ApiError.js";
 import { success } from "zod";
 import User from "../models/user.model.js";
+import { is } from "zod/v4/locales";
+import mongoose from "mongoose";
 
 const createOrganization = asyncHandler(async (req, res) => {
     // fetch user data 
@@ -75,7 +77,7 @@ const getParticularOrganization = asyncHandler(async (req, res) => {
 const addMember = asyncHandler(async (req, res) => {
     // fetch data and validate 
     const result = memberInput.safeParse(req.body);
-    if (!result.success) throw new ApiError(400, "Invalid member inputs");
+    if (!result.success) throw new ApiError(400, "Invalid member inputs", result.error.format());
 
     const { email: memberEmail } = result.data;
 
@@ -120,6 +122,42 @@ const addMember = asyncHandler(async (req, res) => {
     });
 })
 
+const updateTitle = asyncHandler(async (req, res) => {
+    // fetch and validate title
+    const result = title.safeParse(req.body);
+    if (!result.success) throw new ApiError(400, "invalid input" , result.error.format())
+
+    const { title: newTitle } = result.data;
+
+    // fetch orgId and userId
+    const orgId = req.params?.orgId;
+    const userId = req.user._id;
+
+    // validate orgId
+    if (!orgId) throw new ApiError(400, "OrgId is required");
+    if (!mongoose.Types.ObjectId.isValid(orgId)) throw new ApiError(400, "Invalid OrgId format");
+
+    // fectch org and validate
+    const org = await Organization.findById(orgId);
+    if (!org) throw new ApiError(404, "Org not found");
+
+    // check is user Admin or not 
+    const isAdmin = org.createdBy.toString() === userId.toString();
+    if (!isAdmin) throw new ApiError(403, "only admins can update org title");
+
+    org.title = newTitle;
+    await org.save();
+
+    res
+        .status(200)
+        .json({
+            success: true,
+            message: "org title updated successfully",
+            data: {
+                updatedTitle: org.title
+            }
+        })
+})
 
 
-export { createOrganization, getAllOrganization, getParticularOrganization, addMember }
+export { createOrganization, getAllOrganization, getParticularOrganization, addMember, updateTitle }
