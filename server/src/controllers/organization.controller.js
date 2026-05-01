@@ -36,9 +36,16 @@ const createOrganization = asyncHandler(async (req, res) => {
 const getAllOrganization = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
 
-    const orgs = await Organization.find({ createdBy: userId });
+    const orgs = await Organization.find({
+        $or: [
+            { createdBy: userId },
+            { "members.userId": userId }
+        ]
+    }).lean();
 
-    return res.status(200).json({
+    if (!orgs) throw new ApiError(403, "You are not associated with any org");
+
+    res.status(200).json({
         success: true,
         count: orgs.length,
         data: orgs
@@ -47,15 +54,21 @@ const getAllOrganization = asyncHandler(async (req, res) => {
 
 const getParticularOrganization = asyncHandler(async (req, res) => {
     const orgId = req.params.orgId;
+    const memberId = req.user?._id;
 
     const org = await Organization.findById(orgId);
+    if (!org) throw new ApiError(404, "Organization not found");
 
-    if (!org) throw new ApiError(400, "Organization with given id doesnt exist");
+    const member = org.members.find(m => m.userId.toString() === memberId.toString())
+    if (!member) throw new ApiError(404, "No Access")
 
     res.status(200).json({
         success: true,
         message: "organization fetched successfully",
-        data: org
+        data: {
+            orgId: org._id,
+            title: org.title,
+        }
     })
 })
 
