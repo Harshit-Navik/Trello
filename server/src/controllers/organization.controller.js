@@ -125,7 +125,7 @@ const addMember = asyncHandler(async (req, res) => {
 const updateTitle = asyncHandler(async (req, res) => {
     // fetch and validate title
     const result = title.safeParse(req.body);
-    if (!result.success) throw new ApiError(400, "invalid input" , result.error.format())
+    if (!result.success) throw new ApiError(400, "invalid input", result.error.format())
 
     const { title: newTitle } = result.data;
 
@@ -159,5 +159,49 @@ const updateTitle = asyncHandler(async (req, res) => {
         })
 })
 
+const removeMember = asyncHandler(async (req, res) => {
+    // fetch details 
+    const userId = req.user?._id;
+    
+    const { orgId, memberId } = req.params;
+    
+    // validate user 
+    if (!mongoose.Types.ObjectId.isValid(orgId)) throw new ApiError(400, "Invalid OrgId format");
+    if (!mongoose.Types.ObjectId.isValid(memberId)) throw new ApiError(400, "Invalid MemberId format");
 
-export { createOrganization, getAllOrganization, getParticularOrganization, addMember, updateTitle }
+    // fetch and validate org 
+    const org = await Organization.findById(orgId);
+    if (!org) throw new ApiError(404, "Org doesnt exist");
+
+    // is the requester Admin 
+    const isAdmin = org?.createdBy?.toString() === userId.toString();
+    if (!isAdmin) throw new ApiError(403, "Only admins can remove user");
+
+    // validate if user to remove is a part of org or not 
+    const member = org.members.find(m => m?.userId.toString() === memberId.toString());
+    if (!member) throw new ApiError(404, "User is not associated with this organization");
+
+    // check if user to remove is admin 
+    if (member.role === "admin") throw new ApiError(403, "Cannot remove admin");
+
+    // remove requested user and update org 
+
+    const updateOrg = await Organization.updateOne(
+        { _id: orgId },
+        { $pull: { members: { userId: memberId } } } // it remove array elements that match a filter condition { userId: memberId}   
+    );
+
+    const updatedOrg = await Organization.findById(orgId)
+
+    res
+        .status(200)
+        .json({
+            success: true,
+            message: "requested user removed successfully",
+            data: updatedOrg
+        })
+});
+
+
+
+export { createOrganization, getAllOrganization, getParticularOrganization, addMember, updateTitle, removeMember }

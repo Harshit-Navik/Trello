@@ -1,7 +1,7 @@
 import { Router } from "express";
 // import boardRouter from "./boards.route.js"
 // import { createOrg } from "../schema/org.schema.js";
-import { addMember, createOrganization, getAllOrganization, getParticularOrganization , updateTitle } from "../controllers/organization.controller.js";
+import { addMember, createOrganization, getAllOrganization, getParticularOrganization, updateTitle , removeMember} from "../controllers/organization.controller.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = Router();
@@ -20,9 +20,9 @@ router
     .route("/:orgId/members")
     .post(authMiddleware, addMember) // add member
 
-// router
-//     .route("/:orgId/members/:membersId")
-//     .delete() // remove member 
+router
+    .route("/:orgId/members/:memberId")
+    .delete(authMiddleware, removeMember) // remove member 
 
 // router.use("/:orgId/boards" , boardRouter)
 
