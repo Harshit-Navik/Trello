@@ -1,5 +1,5 @@
 import { Board } from "../models/board.model.js";
-import { boardSchema } from "../schema/board.schema.js";
+import { boardSchema, updatedBoardSchema } from "../schema/board.schema.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import mongoose from "mongoose";
@@ -53,4 +53,76 @@ const createBoard = asyncHandler(async (req, res) => {
 
 });
 
-export { createBoard }
+const getAllBoards = asyncHandler(async (req, res) => {
+    // fetch and validate userId and orgId
+    const userId = req.user?._id;
+    const { orgId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(orgId)) throw new ApiError(400, "Invalid OrgId format");
+
+    // validate org + member
+    const org = await Organization.findOne({
+        _id: orgId,
+        "members.userId": userId
+    });
+    if (!org) throw new ApiError(403, "Org doesn't exists or Access Denied !!!");
+
+
+    const boards = await Board.find({ organizationId: orgId }).lean();
+    if (boards.length === 0) throw new ApiError(404, "Boards not found");
+
+    res
+        .status(200)
+        .json(new ApiResponse(200, boards, "Boards fetched successfully"));
+})
+
+const updateBoard = asyncHandler(async (req, res) => {
+    // fetch userId and boardId and validate 
+    const userId = req.user?._id;
+    const { boardId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(boardId)) throw new ApiError(400, "Invalid boardId format");
+
+    // validate input
+    const result = updatedBoardSchema.safeParse(req.body);
+    console.log(req.body);
+
+    if (!result.success) throw new ApiError(400, "Invalid input", result.error.flatten());
+
+    // fetch input
+    const { title, description } = result.data;
+
+    // validate board
+    const board = await Board.findById(boardId);
+    if (!board) throw new ApiError(404, "Board doesn't exists");
+
+    // fetch org
+    const org = await Organization.findOne({
+        _id: board.organizationId,
+        createdBy: userId
+    })
+
+    if (!org) throw new ApiError(403, "Access Denied !!!");
+
+    const updateFields = {};
+    if (title !== undefined) updateFields.title = title;
+    if (description !== undefined) updateFields.description = description;
+
+    const updatedBoard = await Board.findOneAndUpdate(
+        { _id: boardId },
+        { $set: updateFields },
+        {
+            returnDocument: "after",
+            runValidators: true
+        }
+    ).lean();
+
+
+    res
+        .status(200)
+        .json(new ApiResponse(200, updatedBoard, "Board Updated Successfully"))
+
+
+})
+
+export { createBoard, getAllBoards, updateBoard }

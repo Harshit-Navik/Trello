@@ -43,7 +43,7 @@ const getAllOrganization = asyncHandler(async (req, res) => {
         ]
     }).lean(); // returns plain js obj, instead of mongoose document
 
-    if (!orgs) throw new ApiError(403, "You are not associated with any org");
+    if (orgs.length === 0) throw new ApiError(403, "You are not associated with any org");
 
     res.status(200).json({
         success: true,
