@@ -1,6 +1,5 @@
 import { Router } from "express";
-// import boardRouter from "./boards.route.js"
-// import { createOrg } from "../schema/org.schema.js";
+import boardRouter from "./boards.route.js"
 import { addMember, createOrganization, getAllOrganization, getParticularOrganization, updateTitle , removeMember} from "../controllers/organization.controller.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 
@@ -24,6 +23,6 @@ router
     .route("/:orgId/members/:memberId")
     .delete(authMiddleware, removeMember) // remove member 
 
-// router.use("/:orgId/boards" , boardRouter)
+router.use("/:orgId/boards" , boardRouter)
 
 export default router;

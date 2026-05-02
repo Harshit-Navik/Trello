@@ -4,7 +4,6 @@ import { createOrg, memberInput, title } from "../schema/org.schema.js";
 import { ApiError } from "../utils/ApiError.js";
 import { success } from "zod";
 import User from "../models/user.model.js";
-import { is } from "zod/v4/locales";
 import mongoose from "mongoose";
 
 const createOrganization = asyncHandler(async (req, res) => {
@@ -20,7 +19,6 @@ const createOrganization = asyncHandler(async (req, res) => {
     const org = await Organization.create({
         title,
         createdBy: userId,
-
         members: [
             {
                 userId: userId,
@@ -43,7 +41,7 @@ const getAllOrganization = asyncHandler(async (req, res) => {
             { createdBy: userId },
             { "members.userId": userId }
         ]
-    }).lean();
+    }).lean(); // returns plain js obj, instead of mongoose document
 
     if (!orgs) throw new ApiError(403, "You are not associated with any org");
 
@@ -55,12 +53,15 @@ const getAllOrganization = asyncHandler(async (req, res) => {
 })
 
 const getParticularOrganization = asyncHandler(async (req, res) => {
+    // fetch data
     const orgId = req.params.orgId;
     const memberId = req.user?._id;
 
+    // validate org
     const org = await Organization.findById(orgId);
     if (!org) throw new ApiError(404, "Organization not found");
 
+    // validate is user associated with org or not
     const member = org.members.find(m => m.userId.toString() === memberId.toString())
     if (!member) throw new ApiError(404, "No Access")
 
@@ -77,7 +78,7 @@ const getParticularOrganization = asyncHandler(async (req, res) => {
 const addMember = asyncHandler(async (req, res) => {
     // fetch data and validate 
     const result = memberInput.safeParse(req.body);
-    if (!result.success) throw new ApiError(400, "Invalid member inputs", result.error.format());
+    if (!result.success) throw new ApiError(400, "Invalid member inputs", result.error.flatten());
 
     const { email: memberEmail } = result.data;
 
@@ -125,7 +126,7 @@ const addMember = asyncHandler(async (req, res) => {
 const updateTitle = asyncHandler(async (req, res) => {
     // fetch and validate title
     const result = title.safeParse(req.body);
-    if (!result.success) throw new ApiError(400, "invalid input", result.error.format())
+    if (!result.success) throw new ApiError(400, "invalid input", result.error.flatten())
 
     const { title: newTitle } = result.data;
 
@@ -191,7 +192,7 @@ const removeMember = asyncHandler(async (req, res) => {
         { $pull: { members: { userId: memberId } } } // it remove array elements that match a filter condition { userId: memberId}   
     );
 
-    const updatedOrg = await Organization.findById(orgId)
+    const updatedOrg = await Organization.findById(orgId);
 
     res
         .status(200)

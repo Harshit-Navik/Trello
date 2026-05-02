@@ -21,7 +21,7 @@ app.use(cookieParser());  // basically to perform CRUD operations over clients c
 
 import userRouter from "./routes/users.route.js"
 import organizationRouter from "./routes/organizations.route.js"
-// import boardRouter from "./routes/boards.route.js"
+import boardRouter from "./routes/boards.route.js"
 // import listRouter from "./routes/lists.route.js"
 // import cardRouter from "./routes/cards.route.js"
 
@@ -30,7 +30,7 @@ import organizationRouter from "./routes/organizations.route.js"
 
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/organizations", organizationRouter)
-// app.use("/api/v1/boards", boardRouter)
+app.use("/api/v1/boards", boardRouter)
 // app.use("/api/v1/lists", listRouter)
 // app.use("/api/v1/cards", cardRouter)
 
