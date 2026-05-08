@@ -13,7 +13,11 @@ const listSchema = new mongoose.Schema({
         ref: "Board",
         required: true
     },
-
+    orgId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Organization",
+        required: true
+    },
     position: {
         type: Number,
         required: true

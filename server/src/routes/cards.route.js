@@ -12,7 +12,7 @@
 //     .route("/:cardId")
 //     .get() // to get particular card
 //     .patch() // to update a card 
-//     .delete() // to delete a card 
+//     .delete() // to delete a card    
 
 // router
 //     .route("/:cardId/move")

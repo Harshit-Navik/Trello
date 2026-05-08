@@ -10,7 +10,6 @@ const cardSchema = new mongoose.Schema({
 
     description: {
         type: String,
-        required: true,
         trim: true
     },
 
@@ -24,10 +23,19 @@ const cardSchema = new mongoose.Schema({
         ref: "List",
         required: true
     },
+    boardId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Board",
+        required: true
+    },
+    orgId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Organization",
+        required: true
+    },
     assignedTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref:"User",
-        required: true
     },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,

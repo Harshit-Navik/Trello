@@ -18,7 +18,8 @@ router
 //     .get() // get specific board
 //     .delete() // delete board
 
-// router.use("/:boardId/lists", listRouter);
-
+router
+    .route("/:boardId/lists")
+    .get(listRouter);
 
 export default router;
