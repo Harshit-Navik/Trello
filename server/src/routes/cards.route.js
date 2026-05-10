@@ -1,21 +1,31 @@
-// import { Router } from "express";
+import { Router } from "express";
+import { verifyJwt } from "../middlewares/auth.middleware.js";
+import {
+    createCard,
+    getCard,
+    deleteCard,
+    updateCard
+} from "../controllers/card.controller.js";
 
-// const router = Router({ mergeParams: true });
+// Router for creating cards (needs listId)
+const createCardRouter = Router({ mergeParams: true });
 
-// router
-//     .route("/")
-//     .get() // get all cards
-//     .post() // create cards 
+createCardRouter.use(verifyJwt);
 
+createCardRouter
+    .route("/")
+    .post(createCard);
 
-// router
-//     .route("/:cardId")
-//     .get() // to get particular card
-//     .patch() // to update a card 
-//     .delete() // to delete a card    
+// Router for card operations (get, update, delete)
+const cardOperationsRouter = Router();
 
-// router
-//     .route("/:cardId/move")
-//     .patch() // move card to another list 
+cardOperationsRouter
+    .use(verifyJwt);
 
-// export default router;
+cardOperationsRouter
+    .route("/:cardId")
+    .get(getCard)
+    .patch(updateCard)
+    .delete(deleteCard);
+
+export { createCardRouter, cardOperationsRouter };
