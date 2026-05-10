@@ -8,6 +8,7 @@ import { List } from "../models/list.model.js";
 import { fetchList } from "../services/fetchList.service.js";
 import { fetchOrgAsMember } from "../services/fetchOrgAsMember.service.js";
 import { countCardsInList } from "../services/countCardsInList.service.js";
+import { fetchCard } from "../services/fetchCard.service.js";
 
 const createCard = asyncHandler(async (req, res) => {
     // fetch user details 
@@ -42,10 +43,29 @@ const createCard = asyncHandler(async (req, res) => {
         createdBy: userId
     })
 
-    return res
+    res
         .status(201)
         .json(new ApiResponse(201, card))
 
 });
 
-export { createCard };
+const getCard = asyncHandler(async (req, res) => {
+    // fetch user id 
+    const userId = req.user?._id;
+
+    // fetch cardId and validate
+    const { cardId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(cardId)) throw new ApiError(400, "Invalid cardId format");
+
+    // fetch card 
+    const card = await fetchCard(cardId);
+
+    // fetch org and validate membership
+    const org = await fetchOrgAsMember(card.orgId, userId);
+
+    res
+        .status(200)
+        .json(new ApiResponse(200, card))
+})
+
+export { createCard, getCard };
