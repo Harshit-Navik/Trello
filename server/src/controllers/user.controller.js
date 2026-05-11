@@ -22,7 +22,8 @@ const generateRefreshAndAccessToken = async (userId) => {
     }
 }
 
-const registerUser = asyncHandler(async (req, res) => {
+const user = {
+    register: asyncHandler(async (req, res) => {
 
     // ----- steps to perform to register a user -----
 
@@ -87,9 +88,9 @@ const registerUser = asyncHandler(async (req, res) => {
         new ApiResponse(201, createdUser, "user registered successfully ")
     )
 
-})
+    }),
 
-const logInUser = asyncHandler(async (req, res) => {
+    login: asyncHandler(async (req, res) => {
 
     // ------------ steps to follow to login a user --------------------
     /* 
@@ -154,22 +155,9 @@ const logInUser = asyncHandler(async (req, res) => {
                 "user logged in successfully"
             )
         )
-})
+    }),
 
-// answer them when revisit 
-
-/* 
-1. how removing refresh token helps to log out user 
-2. why to define options here
-3. what is this clearcookie in response
-*/
-
-// ye part thoda km smj aaya , will revisit later
-
-// to logout a user , we just have to remove their access and refresh token , that what we did in logoutuser controller 
-
-
-const logOutUser = asyncHandler(async (req, res) => {
+    logout: asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
@@ -194,9 +182,9 @@ const logOutUser = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(200, {}, "User logged out")
         )
-})
+    }),
 
-const refreshAccessToken = async (req, res) => {
+    refreshToken: async (req, res) => {
 
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
@@ -242,9 +230,9 @@ const refreshAccessToken = async (req, res) => {
     } catch (error) {
         throw new ApiError(401, error?.message || "Invaild Refresh Token")
     }
-}
+    },
 
-const changePassword = asyncHandler(async (req, res) => {
+    changePassword: asyncHandler(async (req, res) => {
 
     // zod validation for passwords 
     const result = passwordSchema.safeParse(req.body);
@@ -285,12 +273,13 @@ const changePassword = asyncHandler(async (req, res) => {
             {},
             "password changed successfully"
         ))
-})
+    }),
 
-const getCurrentUser = asyncHandler(async (req, res) => {
+    getCurrentUser: asyncHandler(async (req, res) => {
     return res
         .status(200)
         .json(new ApiResponse(200, req.user, "current user fetched successfully"));
-})
+    })
+};
 
-export { registerUser, logInUser, logOutUser, refreshAccessToken, changePassword, getCurrentUser }
+export { user };

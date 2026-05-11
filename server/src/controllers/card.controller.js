@@ -10,7 +10,8 @@ import { fetchOrgAsMember } from "../services/fetchOrgAsMember.service.js";
 import { countCardsInList } from "../services/countCardsInList.service.js";
 import { fetchCard } from "../services/fetchCard.service.js";
 
-const createCard = asyncHandler(async (req, res) => {
+const card = {
+    create: asyncHandler(async (req, res) => {
     // fetch user details 
     const userId = req.user?._id;
 
@@ -46,10 +47,9 @@ const createCard = asyncHandler(async (req, res) => {
     res
         .status(201)
         .json(new ApiResponse(201, card))
+    }),
 
-});
-
-const getCard = asyncHandler(async (req, res) => {
+    get: asyncHandler(async (req, res) => {
     // fetch user id 
     const userId = req.user?._id;
 
@@ -66,9 +66,9 @@ const getCard = asyncHandler(async (req, res) => {
     res
         .status(200)
         .json(new ApiResponse(200, card))
-})
+    }),
 
-const deleteCard = asyncHandler(async (req, res) => {
+    delete: asyncHandler(async (req, res) => {
     // fetch user id 
     const userId = req.user?._id;
 
@@ -88,9 +88,9 @@ const deleteCard = asyncHandler(async (req, res) => {
     res
         .status(200)
         .json(new ApiResponse(200 , {} , "card deleted successfully"))
-});
+    }),
 
-const updateCard = asyncHandler(async (req, res) => {
+    update: asyncHandler(async (req, res) => {
     // fetch user id 
     const userId = req.user?._id;
 
@@ -133,6 +133,7 @@ const updateCard = asyncHandler(async (req, res) => {
     res
         .status(200)
         .json(new ApiResponse(200, updatedCard, "card updated successfully"))
-});
+    })
+};
 
-export { createCard, getCard, deleteCard, updateCard };
+export { card };

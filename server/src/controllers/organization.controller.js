@@ -6,7 +6,8 @@ import { success } from "zod";
 import User from "../models/user.model.js";
 import mongoose from "mongoose";
 
-const createOrganization = asyncHandler(async (req, res) => {
+const organization = {
+    create: asyncHandler(async (req, res) => {
     // fetch user data 
     const userId = req.user?._id;
 
@@ -31,9 +32,9 @@ const createOrganization = asyncHandler(async (req, res) => {
         success: true,
         data: org
     })
-})
+    }),
 
-const getAllOrganization = asyncHandler(async (req, res) => {
+    getAll: asyncHandler(async (req, res) => {
     const userId = req.user?._id;
 
     const orgs = await Organization.find({
@@ -50,9 +51,9 @@ const getAllOrganization = asyncHandler(async (req, res) => {
         count: orgs.length,
         data: orgs
     })
-})
+    }),
 
-const getParticularOrganization = asyncHandler(async (req, res) => {
+    getParticular: asyncHandler(async (req, res) => {
     // fetch data
     const orgId = req.params.orgId;
     const memberId = req.user?._id;
@@ -73,9 +74,9 @@ const getParticularOrganization = asyncHandler(async (req, res) => {
             title: org.title,
         }
     })
-})
+    }),
 
-const addMember = asyncHandler(async (req, res) => {
+    addMember: asyncHandler(async (req, res) => {
     // fetch data and validate 
     const result = memberInput.safeParse(req.body);
     if (!result.success) throw new ApiError(400, "Invalid member inputs", result.error.flatten());
@@ -121,9 +122,9 @@ const addMember = asyncHandler(async (req, res) => {
         message: "Member added successfully",
         data: org
     });
-})
+    }),
 
-const updateTitle = asyncHandler(async (req, res) => {
+    updateTitle: asyncHandler(async (req, res) => {
     // fetch and validate title
     const result = title.safeParse(req.body);
     if (!result.success) throw new ApiError(400, "invalid input", result.error.flatten())
@@ -158,9 +159,9 @@ const updateTitle = asyncHandler(async (req, res) => {
                 updatedTitle: org.title
             }
         })
-})
+    }),
 
-const removeMember = asyncHandler(async (req, res) => {
+    removeMember: asyncHandler(async (req, res) => {
     // fetch details 
     const userId = req.user?._id;
     
@@ -201,8 +202,7 @@ const removeMember = asyncHandler(async (req, res) => {
             message: "requested user removed successfully",
             data: updatedOrg
         })
-});
+    })
+};
 
-
-
-export { createOrganization, getAllOrganization, getParticularOrganization, addMember, updateTitle, removeMember }
+export { organization };

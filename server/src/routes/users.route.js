@@ -1,34 +1,36 @@
 import { Router } from "express";
-import { registerUser, logInUser, logOutUser, refreshAccessToken, changePassword, getCurrentUser } from "../controllers/user.controller.js";
-import authMiddleware from "../middlewares/auth.middleware.js";
+import { user } from "../controllers/user.controller.js";
+import verifyJWT from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
 router
     .route("/register")
-    .post(registerUser)
-    
+    .post(user.register)
+
 router
     .route("/login")
-    .post(logInUser)
+    .post(user.login)
 
 
 // secured routes 
 
+router.use(verifyJWT)
+
 router
     .route("/logout")
-    .post(authMiddleware, logOutUser)
+    .post(user.logout)
 
 router
     .route("/token")
-    .post(authMiddleware, refreshAccessToken)
+    .post(user.refreshToken)
 
 router
     .route("/password")
-    .patch(authMiddleware, changePassword)
+    .patch(user.changePassword)
 
 router
     .route("/me")
-    .get(authMiddleware, getCurrentUser)
+    .get(user.getCurrentUser)
 
 export default router;
