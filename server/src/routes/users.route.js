@@ -30,7 +30,7 @@ router
     .patch(user.changePassword)
 
 router
-    .route("/me")
+    .route("/")
     .get(user.getCurrentUser)
 
 export default router;

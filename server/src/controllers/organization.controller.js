@@ -72,6 +72,7 @@ const organization = {
         data: {
             orgId: org._id,
             title: org.title,
+            members: org.members
         }
     })
     }),

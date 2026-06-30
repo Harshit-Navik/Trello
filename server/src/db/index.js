@@ -1,4 +1,4 @@
-// here we will write the function to connect database and export it ....
+// Defining database instance .
 
 import mongoose from "mongoose";
 import { DB_NAME } from "../constants.js";

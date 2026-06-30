@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJwt } from "../middlewares/auth.middleware.js";
+import verifyJwt from "../middlewares/auth.middleware.js";
 import { card } from "../controllers/card.controller.js";
 
 // Router for creating cards (needs listId)

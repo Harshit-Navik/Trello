@@ -12,7 +12,7 @@ router.use(verifyJWT)
 router
     .route("/")
     .post(board.create) // to create board 
-    .get(board.getAll) // to get all boards
+    .get(board.getAll) // to get all boards 
 
 
 router

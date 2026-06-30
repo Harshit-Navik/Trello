@@ -8,7 +8,8 @@ const router = Router();
 router.use(verifyJWT)
 
 router
-    .route("/").post(organization.create)
+    .route("/")
+    .post(organization.create)
     .get(organization.getAll) // get all org 
 
 router
