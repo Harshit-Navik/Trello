@@ -16,7 +16,7 @@ router
     .route("/:orgId")
     .get(organization.getParticular) // get specific org 
     .patch(organization.updateTitle) // update org   
-//     .delete() // delete org 
+    .delete(organization.delete) // delete org 
 
 router
     .route("/:orgId/members")
