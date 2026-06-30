@@ -8,6 +8,7 @@ import { List } from "../models/list.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { fetchBoard } from "../services/fetchBoard.service.js";
 import { fetchOrgAsMember } from "../services/fetchOrgAsMember.service.js";
+import { fetchOrgAsAdmin } from "../services/fetchOrgAsAdmin.service.js";
 
 const board = {
     create: asyncHandler(async (req, res) => {
@@ -78,8 +79,6 @@ const board = {
             .json(new ApiResponse(200, boards, "Boards fetched successfully"));
     }),
 
-    // will continue this and delete board after creating lists and cards 
-
     getSpecific: asyncHandler(async (req, res) => {
         //fetch userId and boardId 
         const userId = req.user?._id;
@@ -132,7 +131,7 @@ const board = {
 
         res
             .status(200)
-            .json(new ApiResponse(200, {board, result }, "Board fetched successfully !!"))
+            .json(new ApiResponse(200, { board, result }, "Board fetched successfully !!"))
     }),
 
     update: asyncHandler(async (req, res) => {
@@ -167,6 +166,60 @@ const board = {
         res
             .status(200)
             .json(new ApiResponse(200, updatedBoard, "board updated successfully"))
+    }),
+
+    delete: asyncHandler(async (req, res) => {
+        // fetch user details 
+        const userId = req.user?._id;
+        const { boardId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(boardId)) throw new ApiError(400, "Invalid boardId format");
+
+        // fetch and validate board 
+        const board = await fetchBoard(boardId);
+
+        // Authorization 
+        await fetchOrgAsAdmin(board.organizationId, userId);
+
+        // start transaction
+        const session = await mongoose.startSession();
+
+        try {
+            session.startTransaction();
+
+            // find all lists belong to board 
+            const lists = await List.find({ boardId }).select("_id").lean().session(session);
+
+            const listIds = lists.map(list => list._id);
+
+            // delete all cards in those lists 
+            await Card.deleteMany(
+                {
+                    listId: { $in: listIds }
+                },
+                {
+                    session
+                });
+
+            // delete all lists 
+            await List.deleteMany({ boardId }, { session })
+
+            // delete the boards 
+            await Board.deleteOne({ _id: boardId }, { session });
+
+            // Commit transaction
+            await session.commitTransaction();
+
+            res
+                .status(200)
+                .json(new ApiResponse(200, null, "Board deleted successfully"))
+        } catch (error) {
+            // Roll back all changes
+            await session.abortTransaction();
+            throw new ApiError(500, "Failed to delete board. Transaction rolled back.");
+        } finally {
+            session.endSession();
+        }
     })
 };
 
