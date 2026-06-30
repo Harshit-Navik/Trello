@@ -86,22 +86,53 @@ const board = {
         const { boardId } = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(boardId)) throw new ApiError(400, "Invalid boardId format");
-        
+
         // validate board
-        const board = await Board.findById(boardId).lean();
-        if (!board) throw new ApiError(404, "Board doesn't exists");
+        const board = await fetchBoard(boardId);
 
         // validate membership
-        const isMember = await Organization.findOne({
-            _id: board.organizationId,
-            "members.userId": userId
+        await fetchOrgAsMember(board.organizationId, userId);
+
+        const lists = await List.find({
+            boardId: boardId
         })
 
-        if (!isMember) throw new ApiError(403, "Access Denied !!!");
+        // Extract list IDs
+        const listIds = lists.map(list => list._id);
+
+        // Fetch all cards belonging to those lists
+        const cards = await Card.find(
+            { listId: { $in: listIds } },
+            { title: 1, listId: 1 } // Only fetch title and listId (_id is included by default)
+        );
+
+        // Group cards by listId
+        const cardsByList = {};
+
+        for (const card of cards) {
+            const key = card.listId.toString();
+
+            if (!cardsByList[key]) {
+                cardsByList[key] = [];
+            }
+
+            cardsByList[key].push({
+                _id: card._id,
+                title: card.title,
+            });
+        }
+
+        // Attach cards to their respective lists
+        const result = lists.map(list => ({
+            _id: list._id,
+            title: list.title,
+            boardId: list.boardId,
+            cards: cardsByList[list._id.toString()] || [],
+        }));
 
         res
             .status(200)
-            .json(new ApiResponse(200, board, "Board fetched successfully !!"))
+            .json(new ApiResponse(200, {board, result }, "Board fetched successfully !!"))
     }),
 
     update: asyncHandler(async (req, res) => {
@@ -135,7 +166,7 @@ const board = {
 
         res
             .status(200)
-            .json(new ApiResponse(200, updatedBoard, "board updated successfully" ))
+            .json(new ApiResponse(200, updatedBoard, "board updated successfully"))
     })
 };
 
