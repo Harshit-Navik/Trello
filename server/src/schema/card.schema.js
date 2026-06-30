@@ -26,17 +26,21 @@ const updateCardSchema = z.object({
         .trim()
         .optional(),
 
-    position: z
-        .number()
-        .optional(),
-
     assignedTo: z
         .string()
         .optional(),
 
-    listId: z
-        .string()
-        .optional()
 }).strict();
 
-export { cardSchema, updateCardSchema }
+const moveCardSchema = z.object({
+
+    newPosition: z
+        .number()
+        .optional(),
+
+    newListId: z
+        .string()
+        .optional()
+})
+
+export { cardSchema, updateCardSchema, moveCardSchema }
