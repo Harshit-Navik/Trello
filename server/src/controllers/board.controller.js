@@ -51,7 +51,7 @@ const board = {
 
         const lists = await List.insertMany(listData);
 
-        res
+        return res
             .status(201)
             .json(new ApiResponse(201, { board, lists }, "Board with respective list created successfully"))
     }),
@@ -74,7 +74,7 @@ const board = {
         const boards = await Board.find({ organizationId: orgId }).lean();
         if (boards.length === 0) throw new ApiError(404, "Boards not found");
 
-        res
+        return res
             .status(200)
             .json(new ApiResponse(200, boards, "Boards fetched successfully"));
     }),
@@ -129,7 +129,7 @@ const board = {
             cards: cardsByList[list._id.toString()] || [],
         }));
 
-        res
+        return res
             .status(200)
             .json(new ApiResponse(200, { board, result }, "Board fetched successfully !!"))
     }),
@@ -163,7 +163,7 @@ const board = {
             { new: true }
         )
 
-        res
+        return res
             .status(200)
             .json(new ApiResponse(200, updatedBoard, "board updated successfully"))
     }),
@@ -193,13 +193,7 @@ const board = {
             const listIds = lists.map(list => list._id);
 
             // delete all cards in those lists 
-            await Card.deleteMany(
-                {
-                    listId: { $in: listIds }
-                },
-                {
-                    session
-                });
+            await Card.deleteMany({ listId: { $in: listIds } }).session(session);
 
             // delete all lists 
             await List.deleteMany({ boardId }, { session })
@@ -210,7 +204,7 @@ const board = {
             // Commit transaction
             await session.commitTransaction();
 
-            res
+            return res
                 .status(200)
                 .json(new ApiResponse(200, null, "Board deleted successfully"))
         } catch (error) {
