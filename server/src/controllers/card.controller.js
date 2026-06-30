@@ -140,6 +140,8 @@ const card = {
         const { cardId } = req.params;
         const userId = req.user?._id;
 
+        if (!mongoose.Types.ObjectId.isValid(cardId)) throw new ApiError(400, "Invalid cardId format");
+
         // input validation 
         const result = moveCardSchema.safeParse(req.body);
         if (!result.success) throw new ApiError(400, "Invalid input", result.error.flatten());

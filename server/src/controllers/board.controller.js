@@ -80,29 +80,29 @@ const board = {
 
     // will continue this and delete board after creating lists and cards 
 
-    // getSpecific: asyncHandler(async (req, res) => {
-    //     //fetch userId and boardId 
-    //     const userId = req.user?._id;
-    //     const { boardId } = req.params;
+    getSpecific: asyncHandler(async (req, res) => {
+        //fetch userId and boardId 
+        const userId = req.user?._id;
+        const { boardId } = req.params;
 
-    //     if (!mongoose.Types.ObjectId.isValid(boardId)) throw new ApiError(400, "Invalid boardId format");
+        if (!mongoose.Types.ObjectId.isValid(boardId)) throw new ApiError(400, "Invalid boardId format");
+        
+        // validate board
+        const board = await Board.findById(boardId).lean();
+        if (!board) throw new ApiError(404, "Board doesn't exists");
 
-    //     // validate board
-    //     const board = await Board.findById(boardId).lean();
-    //     if (!board) throw new ApiError(404, "Board doesn't exists");
+        // validate membership
+        const isMember = await Organization.findOne({
+            _id: board.organizationId,
+            "members.userId": userId
+        })
 
-    //     // validate membership
-    //     const isMember = await Organization.findOne({
-    //         _id: board.organizationId,
-    //         "members.userId": userId
-    //     })
+        if (!isMember) throw new ApiError(403, "Access Denied !!!");
 
-    //     if (!isMember) throw new ApiError(403, "Access Denied !!!");
-
-    //     res
-    //         .status(200)
-    //         .json(new ApiResponse(200, board, "Board fetched successfully !!"))
-    // }),
+        res
+            .status(200)
+            .json(new ApiResponse(200, board, "Board fetched successfully !!"))
+    }),
 
     update: asyncHandler(async (req, res) => {
 
