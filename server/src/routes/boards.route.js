@@ -14,10 +14,10 @@ router
     .post(board.create) // to create board 
     .get(board.getAll) // to get all boards 
 
-
 router
     .route("/:boardId")
     .patch(board.update) // update board
+    .delete(board.delete)
 //     .get() // get specific board
 //     .delete() // delete board
 
