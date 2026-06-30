@@ -44,7 +44,7 @@ const card = {
             createdBy: userId
         })
 
-        res
+        return res
             .status(201)
             .json(new ApiResponse(201, card))
     }),
@@ -63,7 +63,7 @@ const card = {
         // fetch org and validate membership
         const org = await fetchOrgAsMember(card.orgId, userId);
 
-        res
+        return res
             .status(200)
             .json(new ApiResponse(200, card))
     }),
@@ -85,7 +85,7 @@ const card = {
         // delete card
         await Card.findByIdAndDelete(cardId);
 
-        res
+        return res
             .status(200)
             .json(new ApiResponse(200, {}, "card deleted successfully"))
     }),
@@ -130,7 +130,7 @@ const card = {
             { new: true }
         );
 
-        res
+        return res
             .status(200)
             .json(new ApiResponse(200, updatedCard, "card updated successfully"))
     }),
@@ -169,7 +169,7 @@ const card = {
             { new: true }
         )
 
-        res
+        return res
             .status(200)
             .json(new ApiResponse(200, movedCard, "card moved successfully"))
     })
